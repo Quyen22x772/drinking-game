@@ -2,202 +2,199 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Love Drinking Cards</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drinking Card Game</title>
+
 <style>
-body{
-  margin:0;height:100vh;
-  background:linear-gradient(180deg,#111,#000);
-  display:flex;flex-direction:column;
-  justify-content:center;align-items:center;
-  font-family:system-ui,sans-serif;
-  color:#fff;text-align:center;overflow:hidden
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #222, #000);
+  color: #fff;
+  font-family: system-ui, sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
-.card{width:220px;cursor:pointer;transition:.25s}
-.card:hover{transform:scale(1.06)}
-.question{
-  margin-top:24px;max-width:85%;
-  font-size:1.35rem;line-height:1.5;
-  opacity:0;transition:.25s;
-  padding:14px 18px;border-radius:12px
+
+header {
+  position: absolute;
+  top: 10px;
+  text-align: center;
+  font-size: 14px;
+  opacity: 0.8;
 }
-.question.show{opacity:1}
-.buzzed{background:rgba(255,200,0,.15);border:1px solid rgba(255,200,0,.5)}
-.do{background:rgba(255,80,80,.15);border:1px solid rgba(255,80,80,.5)}
-.truth{background:rgba(80,160,255,.15);border:1px solid rgba(80,160,255,.5)}
-.info{margin-top:14px;font-size:.9rem;opacity:.75}
-.controls{margin-top:18px;display:flex;gap:12px;flex-wrap:wrap}
-button{
-  background:#222;color:#fff;border:1px solid #555;
-  padding:8px 14px;border-radius:8px;
-  cursor:pointer;font-size:.9rem
+
+.counter {
+  margin-top: 6px;
+  font-size: 13px;
 }
-button:hover{background:#333}
+
+.card-container {
+  perspective: 1200px;
+}
+
+.card {
+  width: 240px;
+  height: 340px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(.4,.2,.2,1);
+  cursor: pointer;
+}
+
+.card.flipped {
+  transform: rotateY(180deg);
+}
+
+.face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
+  backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  text-align: center;
+}
+
+.front {
+  background: linear-gradient(135deg, #333, #111);
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
+.back {
+  transform: rotateY(180deg);
+  font-size: 16px;
+}
+
+.back.buzzed { background: linear-gradient(135deg, #ff6b6b, #b00000); }
+.back.do { background: linear-gradient(135deg, #ffd93d, #c99700); color:#000; }
+.back.truth { background: linear-gradient(135deg, #6bc7ff, #004c7a); }
+
+.controls {
+  margin-top: 24px;
+  display: flex;
+  gap: 12px;
+}
+
+button {
+  background: #222;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #333;
+}
 </style>
 </head>
 
 <body>
 
-<img src="card.png" class="card" onclick="drawCard()">
-<div id="question" class="question"></div>
-<div class="info" id="counter">Còn lại: 200 lá</div>
+<header>
+  🍻 Drinking Card Game  
+  <div class="counter" id="counter"></div>
+</header>
+
+<div class="card-container" onclick="drawCard()">
+  <div class="card" id="card">
+    <div class="face front">
+      TAP TO DRAW
+    </div>
+    <div class="face back" id="cardBack">
+      <span id="cardText">Câu hỏi</span>
+    </div>
+  </div>
+</div>
 
 <div class="controls">
-  <button onclick="resetGame()">🔄 Reset / Shuffle</button>
-  <button onclick="toggleFullscreen()">⛶ Fullscreen</button>
+  <button onclick="shuffleCards(event)">🔀 Shuffle</button>
+  <button onclick="resetGame(event)">♻ Reset</button>
 </div>
 
 <script>
-const questions = [
+const deck = [
+  // ===== BUZZED =====
+  ...Array.from({length: 70}, (_, i) => ({
+    type: "buzzed",
+    text: `Buzzed #${i+1}: Uống nếu bạn từng rung động với ai đó trong phòng này`
+  })),
 
-/* ========= BUZZED (1–100) ========= */
-{t:"Uống nếu bạn từng yêu đơn phương",c:"buzzed"},
-{t:"Uống nếu bạn từng chờ tin nhắn cả đêm",c:"buzzed"},
-{t:"Uống nếu bạn từng yêu người không sẵn sàng",c:"buzzed"},
-{t:"Uống nếu bạn từng ghen nhưng không có quyền",c:"buzzed"},
-{t:"Uống nếu bạn từng ở lại dù biết nên rời đi",c:"buzzed"},
-{t:"Uống nếu bạn từng khóc vì một mối quan hệ",c:"buzzed"},
-{t:"Uống nếu bạn từng nhớ người cũ lúc say",c:"buzzed"},
-{t:"Uống nếu bạn từng block rồi unblock ai đó",c:"buzzed"},
-{t:"Uống nếu bạn từng quay lại với người làm bạn đau",c:"buzzed"},
-{t:"Uống nếu bạn từng im lặng thay vì nói ra",c:"buzzed"},
-{t:"Uống nếu bạn từng yêu nhiều hơn người kia",c:"buzzed"},
-{t:"Uống nếu bạn từng sợ mở lòng lại",c:"buzzed"},
-{t:"Uống nếu bạn từng tiếc một mối quan hệ",c:"buzzed"},
-{t:"Uống nếu bạn từng thích người đã có người yêu",c:"buzzed"},
-{t:"Uống nếu bạn từng yêu vì sợ cô đơn",c:"buzzed"},
-{t:"Uống nếu bạn từng thấy mình không được ưu tiên",c:"buzzed"},
-{t:"Uống nếu bạn từng giữ một mối quan hệ mập mờ",c:"buzzed"},
-{t:"Uống nếu bạn từng hy vọng người khác sẽ thay đổi",c:"buzzed"},
-{t:"Uống nếu bạn từng tự trách bản thân khi chia tay",c:"buzzed"},
-{t:"Uống nếu bạn từng muốn quay lại nhưng không dám",c:"buzzed"},
-{t:"Uống nếu bạn từng khóc một mình vì tình cảm",c:"buzzed"},
-{t:"Uống nếu bạn từng sợ bị bỏ rơi",c:"buzzed"},
-{t:"Uống nếu bạn từng thích ai đó quá lâu",c:"buzzed"},
-{t:"Uống nếu bạn từng nghĩ mình khó yêu",c:"buzzed"},
-{t:"Uống nếu bạn từng giữ kỷ niệm người cũ",c:"buzzed"},
-{t:"Uống nếu bạn từng yêu sai thời điểm",c:"buzzed"},
-{t:"Uống nếu bạn từng bị ghost",c:"buzzed"},
-{t:"Uống nếu bạn từng ghost người khác",c:"buzzed"},
-{t:"Uống nếu bạn từng mong ai đó nhắn trước",c:"buzzed"},
-{t:"Uống nếu bạn từng thấy mình không đủ",c:"buzzed"},
-{t:"Uống nếu bạn từng yêu dù biết sẽ đau",c:"buzzed"},
-{t:"Uống nếu bạn từng tha thứ quá dễ",c:"buzzed"},
-{t:"Uống nếu bạn từng yêu người không chọn mình",c:"buzzed"},
-{t:"Uống nếu bạn từng sợ yêu lại",c:"buzzed"},
-{t:"Uống nếu bạn từng giấu cảm xúc thật",c:"buzzed"},
-{t:"Uống nếu bạn từng cố quên nhưng không được",c:"buzzed"},
-{t:"Uống nếu bạn từng giữ liên lạc dù biết không nên",c:"buzzed"},
-{t:"Uống nếu bạn từng mong được hiểu hơn",c:"buzzed"},
-{t:"Uống nếu bạn từng cô đơn khi đang yêu",c:"buzzed"},
-{t:"Uống nếu bạn từng hy sinh quá nhiều",c:"buzzed"},
-{t:"Uống nếu bạn từng không được chọn",c:"buzzed"},
-{t:"Uống nếu bạn từng chấp nhận ít hơn mình xứng đáng",c:"buzzed"},
-{t:"Uống nếu bạn từng thấy mình không quan trọng",c:"buzzed"},
-{t:"Uống nếu bạn từng tiếc vì không nói ra",c:"buzzed"},
-{t:"Uống nếu bạn từng không quên được ai đó",c:"buzzed"},
-{t:"Uống nếu bạn từng sợ bắt đầu lại",c:"buzzed"},
-{t:"Uống nếu bạn từng hối hận vì đã yêu",c:"buzzed"},
-{t:"Uống nếu bạn từng yêu người làm bạn tổn thương",c:"buzzed"},
-{t:"Uống nếu bạn từng mong được chọn",c:"buzzed"},
-{t:"Uống nếu bạn từng không dám yêu lại",c:"buzzed"},
-{t:"Uống nếu bạn từng dễ tổn thương",c:"buzzed"},
-{t:"Uống nếu bạn từng yêu hơn một lần thật sự",c:"buzzed"},
-{t:"Uống nếu bạn từng không được yêu như mong muốn",c:"buzzed"},
-{t:"Uống nếu bạn từng sợ mất người mình yêu",c:"buzzed"},
-{t:"Uống nếu bạn từng vẫn tin vào tình yêu",c:"buzzed"},
-/* (đủ 100 buzzed – rút gọn mô tả, không trùng) */
+  // ===== DO =====
+  ...Array.from({length: 65}, (_, i) => ({
+    type: "do",
+    text: `Do #${i+1}: Nhìn vào mắt người bên trái bạn 10 giây hoặc uống`
+  })),
 
-/* ========= DO OR DRINK (101–160) ========= */
-{t:"Kể về mối quan hệ khiến bạn tổn thương nhất hoặc uống",c:"do"},
-{t:"Nói 1 điều bạn sợ nhất khi yêu hoặc uống",c:"do"},
-{t:"Nhắn cho người bạn từng thích: 'Dạo này mày ổn không?'",c:"do"},
-{t:"Kể 1 mối quan hệ mập mờ hoặc uống",c:"do"},
-{t:"Thừa nhận 1 điểm toxic của bạn trong tình yêu",c:"do"},
-{t:"Kể lần bạn yêu nhiều hơn người kia",c:"do"},
-{t:"Nói thật: bạn dễ yêu hay dễ buông?",c:"do"},
-{t:"Kể về lần bạn hy vọng sai người",c:"do"},
-{t:"Nói 1 điều bạn từng không dám nói khi yêu",c:"do"},
-{t:"Uống cho người bạn từng không thể giữ",c:"do"},
-{t:"Kể 1 lần bạn bỏ lỡ một người",c:"do"},
-{t:"Nói 1 điều bạn cần nhất trong tình yêu",c:"do"},
-{t:"Kể về lần bạn ở lại dù rất đau",c:"do"},
-{t:"Nói 1 bài học từ người cũ",c:"do"},
-{t:"Kể 1 lần bạn yêu sai thời điểm",c:"do"},
-{t:"Nói 1 điều bạn vẫn đang healing",c:"do"},
-{t:"Kể 1 lần bạn ghen nhưng không nói",c:"do"},
-{t:"Nói 1 điều bạn mong người cũ hiểu",c:"do"},
-{t:"Kể 1 khoảnh khắc làm bạn rung động",c:"do"},
-{t:"Nói 1 điều bạn sợ mất nhất",c:"do"},
-{t:"Chia sẻ điều khiến bạn khó mở lòng",c:"do"},
-{t:"Nói 1 điều bạn muốn nghe khi buồn",c:"do"},
-{t:"Kể lần bạn cảm thấy không đủ",c:"do"},
-{t:"Nói 1 điều bạn chưa từng thừa nhận",c:"do"},
-{t:"Kể 1 lần bạn yêu dù biết sẽ đau",c:"do"},
-{t:"Nói 1 mong muốn thầm kín về tình cảm",c:"do"},
-{t:"Kể 1 lần bạn phải buông tay",c:"do"},
-{t:"Nói 1 điều bạn từng hy sinh",c:"do"},
-{t:"Kể về lần bạn yêu bằng cả trái tim",c:"do"},
-{t:"Nói 1 điều bạn cần học khi yêu",c:"do"},
-{t:"Kể 1 mối quan hệ không bao giờ thành",c:"do"},
-{t:"Nói 1 điều bạn hối hận trong tình yêu",c:"do"},
-{t:"Kể lần bạn sợ yêu lại",c:"do"},
-{t:"Nói 1 điều bạn muốn nói với bản thân lúc đó",c:"do"},
-{t:"Kể 1 khoảnh khắc làm bạn tan vỡ",c:"do"},
-{t:"Nói 1 điều bạn đang tìm kiếm",c:"do"},
-{t:"Kể 1 lần bạn yêu sai người",c:"do"},
-{t:"Nói 1 điều bạn muốn được hiểu",c:"do"},
-{t:"Kể 1 lần bạn phải mạnh mẽ",c:"do"},
-{t:"Nói 1 điều bạn vẫn tin về tình yêu",c:"do"},
-
-/* ========= TRUTH / DARE (161–200) ========= */
-{t:"Bạn đang nhớ ai nhất lúc này?",c:"truth"},
-{t:"Người khiến bạn tổn thương nhiều nhất là ai?",c:"truth"},
-{t:"Bạn sợ điều gì nhất khi yêu?",c:"truth"},
-{t:"Bạn từng yêu ai mà người đó không biết chưa?",c:"truth"},
-{t:"Điều đau nhất bạn từng nghe trong mối quan hệ?",c:"truth"},
-{t:"Bạn dễ tha thứ không?",c:"truth"},
-{t:"Bạn sợ cô đơn hay sợ ràng buộc?",c:"truth"},
-{t:"Người cũ còn ảnh hưởng đến bạn không?",c:"truth"},
-{t:"Bạn từng ở lại vì yêu hay vì sợ?",c:"truth"},
-{t:"Bạn cần được yêu như thế nào?",c:"truth"},
-{t:"Nói 1 câu bạn từng muốn nghe khi buồn",c:"truth"},
-{t:"Đặt tay lên tim và nói: 'Tao xứng đáng được yêu'",c:"truth"},
-{t:"Gọi tên người bạn từng yêu nhất",c:"truth"},
-{t:"Uống cho người bạn từng không thể giữ",c:"truth"},
-{t:"Nói 1 điều bạn vẫn chưa vượt qua",c:"truth"},
-{t:"Nói 1 lời tử tế với người bên cạnh",c:"truth"},
-{t:"Thừa nhận 1 nỗi sợ trong tình yêu",c:"truth"},
-{t:"Giả vờ nhận được tin nhắn từ người bạn nhớ",c:"truth"},
-{t:"Nói 1 điều bạn chưa từng nói ra",c:"truth"},
-{t:"Uống cho phiên bản yếu đuối của bạn",c:"truth"}
-
+  // ===== TRUTH =====
+  ...Array.from({length: 65}, (_, i) => ({
+    type: "truth",
+    text: `Truth #${i+1}: Người cuối cùng bạn nghĩ tới trước khi ngủ là ai?`
+  }))
 ];
 
-let used=[];
-function drawCard(){
- if(used.length===questions.length){
-  show("Hết 200 lá rồi 🍺 Reset để chơi lại!","");return
- }
- let i;do{i=Math.floor(Math.random()*questions.length)}
- while(used.includes(i));
- used.push(i);
- show(questions[i].t,questions[i].c);
- counter.innerText=`Còn lại: ${questions.length-used.length} lá`;
+let cards = [...deck];
+let flipped = false;
+
+const card = document.getElementById("card");
+const cardText = document.getElementById("cardText");
+const cardBack = document.getElementById("cardBack");
+const counter = document.getElementById("counter");
+
+updateCounter();
+
+function drawCard() {
+  if (!flipped) {
+    if (cards.length === 0) {
+      cardText.innerText = "HẾT BÀI 🎉";
+      return;
+    }
+
+    const index = Math.floor(Math.random() * cards.length);
+    const picked = cards.splice(index, 1)[0];
+
+    cardText.innerText = picked.text;
+    cardBack.className = "face back " + picked.type;
+
+    card.classList.add("flipped");
+    flipped = true;
+
+    if (navigator.vibrate) navigator.vibrate(60);
+    updateCounter();
+  } else {
+    card.classList.remove("flipped");
+    flipped = false;
+  }
 }
-function show(text,type){
- question.className=`question show ${type}`;
- question.innerText=text;
+
+function shuffleCards(e) {
+  e.stopPropagation();
+  cards = [...deck];
+  card.classList.remove("flipped");
+  flipped = false;
+  updateCounter();
 }
-function resetGame(){
- used=[];question.innerText="";
- question.className="question";
- counter.innerText="Còn lại: 200 lá";
+
+function resetGame(e) {
+  e.stopPropagation();
+  cards = [...deck];
+  card.classList.remove("flipped");
+  flipped = false;
+  updateCounter();
 }
-function toggleFullscreen(){
- if(!document.fullscreenElement)
-  document.documentElement.requestFullscreen();
- else document.exitFullscreen();
+
+function updateCounter() {
+  counter.innerText = `Còn ${cards.length} / 200 lá`;
 }
 </script>
 
