@@ -2,127 +2,232 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Drinking Card Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ultimate Drinking Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
 
 <style>
-* { box-sizing: border-box; }
+:root {
+  --bg-color: #0f0f13;
+  --card-width: 260px;
+  --card-height: 380px;
+  --primary-gradient: linear-gradient(45deg, #ff0055, #ff00cc);
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+* { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
 
 body {
   margin: 0;
-  background: radial-gradient(circle at top, #222, #000);
+  background-color: var(--bg-color);
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(255, 0, 85, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(0, 204, 255, 0.15) 0%, transparent 40%);
   color: #fff;
-  font-family: system-ui, sans-serif;
+  font-family: 'Montserrat', sans-serif;
   height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
+/* Header Info */
 header {
-  position: absolute;
-  top: 10px;
+  position: fixed;
+  top: 20px;
   text-align: center;
-  font-size: 14px;
-  opacity: 0.8;
+  z-index: 10;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  padding: 10px 25px;
+  border-radius: 50px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
 }
 
-.counter {
-  margin-top: 6px;
-  font-size: 13px;
+h1 { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+.counter { margin-top: 4px; font-size: 12px; color: #aaa; font-weight: 600; }
+
+/* Card Area */
+.scene {
+  perspective: 1500px;
+  position: relative;
+  margin-bottom: 40px;
 }
 
-.card-container {
-  perspective: 1200px;
+.card-wrapper {
+  position: relative;
+  width: var(--card-width);
+  height: var(--card-height);
+  cursor: pointer;
 }
+
+/* Hiệu ứng xấp bài bên dưới */
+.card-wrapper::before, .card-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #2a2a30, #1a1a1f);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+  z-index: -1;
+  transition: transform 0.3s ease;
+}
+.card-wrapper::before { transform: translate(6px, 6px) rotate(2deg); opacity: 0.6; }
+.card-wrapper::after { transform: translate(12px, 12px) rotate(4deg); opacity: 0.3; }
 
 .card {
-  width: 240px;
-  height: 340px;
+  width: 100%;
+  height: 100%;
   position: relative;
   transform-style: preserve-3d;
-  transition: transform 0.8s cubic-bezier(.4,.2,.2,1);
-  cursor: pointer;
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  border-radius: 24px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
 }
 
 .card.flipped {
   transform: rotateY(180deg);
 }
 
+/* Animation khi Shuffle */
+@keyframes shake {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(5deg) translate(5px, -5px); }
+  50% { transform: rotate(-5deg) translate(-5px, 5px); }
+  75% { transform: rotate(3deg) translate(3px, -3px); }
+  100% { transform: rotate(0deg); }
+}
+
+.shuffling .card-wrapper {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Các mặt của lá bài */
 .face {
   position: absolute;
   width: 100%;
   height: 100%;
-  border-radius: 18px;
+  border-radius: 24px;
   backface-visibility: hidden;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 18px;
+  padding: 30px;
   text-align: center;
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
+/* Mặt sau (Úp) */
 .front {
-  background: linear-gradient(135deg, #333, #111);
-  font-size: 18px;
-  letter-spacing: 2px;
+  background: linear-gradient(135deg, #2b2b2b, #121212);
+  background-image: 
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10px);
 }
 
+.logo { font-size: 50px; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
+.tap-hint { font-size: 14px; letter-spacing: 2px; opacity: 0.6; font-weight: 600; margin-top: 10px; animation: pulse 2s infinite; }
+
+@keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.8; } }
+
+/* Mặt trước (Ngửa - Nội dung) */
 .back {
   transform: rotateY(180deg);
-  font-size: 16px;
+  font-size: 18px;
+  line-height: 1.5;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.3);
 }
 
-.back.buzzed { background: linear-gradient(135deg, #ff6b6b, #b00000); }
-.back.do { background: linear-gradient(135deg, #ffd93d, #c99700); color:#000; }
-.back.truth { background: linear-gradient(135deg, #6bc7ff, #004c7a); }
+/* Các loại thẻ */
+.back.buzzed { background: linear-gradient(135deg, #ff416c, #ff4b2b); } /* Đỏ cam */
+.back.do { background: linear-gradient(135deg, #f09819, #edde5d); color: #222; text-shadow: none; } /* Vàng */
+.back.truth { background: linear-gradient(135deg, #00c6ff, #0072ff); } /* Xanh dương */
 
+.card-type-label {
+  position: absolute;
+  top: 20px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  opacity: 0.8;
+  border: 1px solid rgba(255,255,255,0.4);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+.back.do .card-type-label { border-color: rgba(0,0,0,0.2); }
+
+/* Controls */
 .controls {
-  margin-top: 24px;
+  position: absolute;
+  bottom: 40px;
   display: flex;
-  gap: 12px;
+  gap: 15px;
 }
 
 button {
-  background: #222;
+  background: var(--glass-bg);
   color: #fff;
-  border: 1px solid #444;
-  padding: 8px 14px;
-  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  padding: 12px 24px;
+  border-radius: 30px;
   cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-button:hover {
-  background: #333;
-}
+button:active { transform: scale(0.95); }
+button:hover { background: rgba(255, 255, 255, 0.15); border-color: rgba(255,255,255,0.3); }
+
+.btn-shuffle { background: var(--primary-gradient); border: none; box-shadow: 0 4px 15px rgba(255, 0, 85, 0.4); }
+
 </style>
 </head>
 
 <body>
 
 <header>
-  🍻 Drinking Card Game  
-  <div class="counter" id="counter"></div>
+  <h1>🍻 Drinking Game</h1>
+  <div class="counter" id="counter">Loading...</div>
 </header>
 
-<div class="card-container" onclick="drawCard()">
-  <div class="card" id="card">
-    <div class="face front">
-      TAP TO DRAW
-    </div>
-    <div class="face back" id="cardBack">
-      <span id="cardText">Câu hỏi</span>
+<div class="scene" id="scene">
+  <div class="card-wrapper" onclick="drawCard()">
+    <div class="card" id="card">
+      
+      <div class="face front">
+        <div class="logo">🍺</div>
+        <div class="tap-hint">CHẠM ĐỂ RÚT</div>
+      </div>
+
+      <div class="face back" id="cardBack">
+        <div class="card-type-label" id="cardType">TYPE</div>
+        <span id="cardText">Nội dung câu hỏi</span>
+      </div>
+
     </div>
   </div>
 </div>
 
 <div class="controls">
-  <button onclick="shuffleCards(event)">🔀 Shuffle</button>
-  <button onclick="resetGame(event)">♻ Reset</button>
-</div>
+  <button class="btn-shuffle" onclick="shuffleGame(event)">
+    <span>🔀</span> Tráo bài lại
+  </button>
+  </div>
 
 <script>
+// Dữ liệu bộ bài (Đã rút gọn để demo, bạn hãy paste toàn bộ data cũ của bạn vào đây)
 const deck = [
 
 /* ================= BUZZED (71) ================= */
@@ -415,62 +520,83 @@ const deck = [
 { type:"truth", text:"Mindset như thế nào của người khác khiến bạn cảm thấy rất đỉnh nhưng bạn không thể làm được?" }
 ];
 
-let cards = [...deck];
+let cards = [...fullDeck];
 let flipped = false;
 
+const scene = document.getElementById("scene");
 const card = document.getElementById("card");
 const cardText = document.getElementById("cardText");
 const cardBack = document.getElementById("cardBack");
+const cardType = document.getElementById("cardType");
 const counter = document.getElementById("counter");
 
 updateCounter();
 
+// Hàm rút bài
 function drawCard() {
-  if (!flipped) {
-    if (cards.length === 0) {
-      cardText.innerText = "HẾT BÀI 🎉";
-      return;
-    }
+  if (cards.length === 0) {
+    alert("Hết bài rồi! Bấm Shuffle để chơi lại.");
+    return;
+  }
 
+  if (!flipped) {
+    // Rút ngẫu nhiên một lá
     const index = Math.floor(Math.random() * cards.length);
     const picked = cards.splice(index, 1)[0];
 
+    // Cập nhật nội dung
     cardText.innerText = picked.text;
+    cardType.innerText = picked.type.toUpperCase();
+    
+    // Set màu nền dựa trên loại
     cardBack.className = "face back " + picked.type;
 
+    // Hiệu ứng lật
     card.classList.add("flipped");
     flipped = true;
 
-    if (navigator.vibrate) navigator.vibrate(60);
+    // Rung nhẹ điện thoại (nếu hỗ trợ)
+    if (navigator.vibrate) navigator.vibrate(50);
+    
     updateCounter();
+
   } else {
+    // Úp bài lại để rút lá tiếp theo
     card.classList.remove("flipped");
     flipped = false;
   }
 }
 
-function shuffleCards(e) {
+// Hàm Shuffle (Tráo bài & Reset)
+function shuffleGame(e) {
   e.stopPropagation();
-  cards = [...deck];
-  card.classList.remove("flipped");
-  flipped = false;
-  updateCounter();
-}
 
-function resetGame(e) {
-  e.stopPropagation();
-  cards = [...deck];
-  card.classList.remove("flipped");
-  flipped = false;
+  // Thêm class animation rung lắc vào container
+  scene.classList.add("shuffling");
+
+  // Reset lại toàn bộ bài
+  cards = [...fullDeck];
   updateCounter();
+  
+  // Úp bài lại nếu đang lật
+  if (flipped) {
+    card.classList.remove("flipped");
+    flipped = false;
+  }
+
+  // Xóa class animation sau khi chạy xong (0.5s)
+  setTimeout(() => {
+    scene.classList.remove("shuffling");
+  }, 500);
+
+  // Rung phản hồi
+  if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
 }
 
 function updateCounter() {
-  counter.innerText = `Còn ${cards.length} / 281 lá`;
+  counter.innerText = `CÒN ${cards.length} / ${fullDeck.length} LÁ`;
 }
 </script>
 
 </body>
 </html>
-
-
