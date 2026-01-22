@@ -3,222 +3,306 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ultimate Drinking Game</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+<title>Ultimate Drinking Game (Deluxe)</title>
+<link href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&family=Comic+Neue:wght@700&family=Dancing+Script:wght@700&family=Fredoka+One&family=Montserrat:wght@300;400;600;800&family=Noto+Serif:wght@400;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 
 <style>
-:root {
-  --bg-color: #0f0f13;
-  --card-width: 260px;
-  --card-height: 380px;
-  --primary-gradient: linear-gradient(45deg, #ff0055, #ff00cc);
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.15);
-  --neon-pink: #ff0055;
-  --neon-blue: #00ccff;
-}
+    /* ================= CẤU HÌNH CHUNG ================= */
+    * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; outline: none; }
+    
+    body {
+        margin: 0; height: 100vh; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; overflow: hidden;
+        transition: background 0.6s cubic-bezier(0.22, 1, 0.36, 1), color 0.6s ease;
+        position: relative;
+    }
 
-* { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; outline: none; }
+    /* Container cho hiệu ứng hoa rơi (chỉ hiện ở theme Japan) */
+    #sakura-container {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        pointer-events: none; z-index: 1; overflow: hidden; display: none;
+    }
 
-body {
-  margin: 0;
-  background-color: var(--bg-color);
-  background-image: 
-    radial-gradient(circle at 10% 20%, rgba(255, 0, 85, 0.15) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(0, 204, 255, 0.15) 0%, transparent 40%);
-  color: #fff;
-  font-family: 'Montserrat', sans-serif;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
+    /* Nút chuyển Theme */
+    .theme-switch {
+        position: fixed; top: 20px; right: 20px; z-index: 100;
+        background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #fff; padding: 8px 12px; border-radius: 20px; cursor: pointer;
+        font-size: 12px; font-weight: bold; backdrop-filter: blur(5px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.3s ease;
+    }
+    
+    body.theme-cartoon .theme-switch, 
+    body.theme-minimal .theme-switch,
+    body.theme-japan .theme-switch {
+        background: rgba(0, 0, 0, 0.05); border-color: rgba(0,0,0,0.1); color: #333;
+    }
+    body.theme-japan .theme-switch { background: #b71c1c; color: #fff; border: 1px solid #d32f2f; }
 
-/* Header Info */
-header {
-  position: fixed;
-  top: 20px;
-  text-align: center;
-  z-index: 10;
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  padding: 10px 25px;
-  border-radius: 50px;
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-}
+    /* Helper Icons */
+    .theme-icon { display: none; }
+    body.theme-main .icon-main, body.theme-pixel .icon-pixel, 
+    body.theme-cartoon .icon-cartoon, body.theme-minimal .icon-minimal,
+    body.theme-japan .icon-japan { display: block; }
 
-h1 { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
-.counter { margin-top: 4px; font-size: 12px; color: #aaa; font-weight: 600; }
 
-/* Card Area */
-.scene {
-  perspective: 1500px;
-  position: relative;
-  margin-bottom: 40px;
-}
+    /* ================================================================
+       THEME 1: MAIN (Modern Neon)
+       ================================================================ */
+    body.theme-main {
+        --bg-color: #0f0f13; --card-radius: 24px; --font-main: 'Montserrat', sans-serif;
+        background: radial-gradient(circle at 10% 20%, rgba(255, 0, 85, 0.15) 0%, transparent 40%), 
+                    radial-gradient(circle at 90% 80%, rgba(0, 204, 255, 0.15) 0%, transparent 40%), #0f0f13;
+        color: #fff; font-family: var(--font-main);
+    }
+    body.theme-main header { background: rgba(255,255,255,0.05); padding: 10px 25px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 30px rgba(0,0,0,0.3); backdrop-filter: blur(10px); }
+    body.theme-main h1 { font-size: 16px; font-weight: 800; letter-spacing: 1px; }
+    body.theme-main .counter { font-size: 12px; color: #aaa; margin-top: 4px; }
+    body.theme-main .card { border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+    body.theme-main .face { border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); }
+    body.theme-main .front { background: linear-gradient(135deg, #2b2b2b, #121212); }
+    body.theme-main .icon-main { font-size: 50px; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
+    body.theme-main .controls button { background: rgba(255,255,255,0.05); border-radius: 40px; color: #fff; font-weight: 700; border: 1px solid rgba(255,255,255,0.15); padding: 14px 28px; }
+    body.theme-main .tap-hint { font-size: 14px; letter-spacing: 3px; font-weight: 800; background: linear-gradient(to right, #ff0055, #00ccff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: pulseHint 2s infinite; }
+    body.theme-main .back.buzzed { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
+    body.theme-main .back.do { background: linear-gradient(135deg, #f09819, #edde5d); color: #222; text-shadow: none; }
+    body.theme-main .back.truth { background: linear-gradient(135deg, #00c6ff, #0072ff); }
+    body.theme-main .card-type-label { top: 20px; font-size: 12px; letter-spacing: 2px; border: 1px solid rgba(255,255,255,0.4); padding: 4px 12px; border-radius: 20px; }
+    @keyframes superSpin { 0% { transform: rotateY(0) scale(1); } 40% { scale: 0.9; } 100% { transform: rotateY(1080deg) scale(1); } }
+    body.theme-main .is-shuffling .card { animation: superSpin 0.8s cubic-bezier(0.4, 0.0, 0.2, 1); }
 
-.card-wrapper {
-  position: relative;
-  width: var(--card-width);
-  height: var(--card-height);
-  cursor: pointer;
-}
 
-/* Hiệu ứng xấp bài bên dưới */
-.card-wrapper::before, .card-wrapper::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  border-radius: 24px;
-  background: linear-gradient(135deg, #2a2a30, #1a1a1f);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-  z-index: -1;
-  transition: transform 0.3s ease;
-}
-.card-wrapper::before { transform: translate(6px, 6px) rotate(2deg); opacity: 0.6; }
-.card-wrapper::after { transform: translate(12px, 12px) rotate(4deg); opacity: 0.3; }
+    /* ================================================================
+       THEME 2: PIXEL (Retro - ĐÃ UPDATE TEXTURE)
+       ================================================================ */
+    body.theme-pixel {
+        --bg-dark: #0a0a14; background-color: var(--bg-dark);
+        background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.2) 0px, rgba(0,0,0,0.2) 1px, transparent 1px, transparent 20px), repeating-linear-gradient(90deg, rgba(0,0,0,0.2) 0px, rgba(0,0,0,0.2) 1px, transparent 1px, transparent 20px);
+        background-size: 20px 20px; color: #e0e0e0; font-family: 'VT323', monospace; image-rendering: pixelated;
+    }
+    body.theme-pixel header { background: #000; border: 4px solid #00ccff; padding: 15px 20px; box-shadow: 8px 8px 0 #1a1a2e; }
+    body.theme-pixel h1 { font-family: 'Press Start 2P', cursive; font-size: 12px; color: #ffcc00; text-shadow: 2px 2px 0 #ff0055; margin: 0; }
+    body.theme-pixel .counter { font-size: 18px; color: #00ff99; margin-top: 8px; font-family: 'VT323'; letter-spacing: 1px; }
+    body.theme-pixel .card { border: 4px solid #000; box-shadow: 12px 12px 0 #0f0f1a; background: #000; border-radius: 0; }
+    body.theme-pixel .face { border: none; padding: 20px; }
+    body.theme-pixel .front { background-color: #222; background-image: repeating-linear-gradient(45deg, #333 0, #333 4px, #222 4px, #222 8px); border: 4px solid #00ccff; }
+    body.theme-pixel .icon-pixel { width: 4px; height: 4px; font-size: 80px; margin-bottom: 30px; color: #ff0055; box-shadow: 0em -0.5em 0, 0.1em -0.5em 0, 0.2em -0.5em 0, 0.3em -0.5em 0, 0.4em -0.5em 0, -0.1em -0.4em 0, 0.5em -0.4em 0, -0.1em -0.3em 0, 0.2em -0.3em 0, 0.3em -0.3em 0, 0.5em -0.3em 0, -0.1em -0.2em 0, 0.1em -0.2em 0, 0.4em -0.2em 0, 0.5em -0.2em 0, -0.1em -0.1em 0, 0.5em -0.1em 0, -0.1em 0em 0, 0.5em 0em 0, -0.1em 0.1em 0, 0.5em 0.1em 0, -0.1em 0.2em 0, 0.5em 0.2em 0, -0.1em 0.3em 0, 0.5em 0.3em 0, -0.1em 0.4em 0, 0.5em 0.4em 0, 0em 0.5em 0, 0.1em 0.5em 0, 0.2em 0.5em 0, 0.3em 0.5em 0, 0.4em 0.5em 0; }
+    body.theme-pixel .controls button { font-family: 'Press Start 2P'; font-size: 12px; background: #00ff99; color: #000; border: 4px solid #000; padding: 15px 25px; box-shadow: inset -4px -4px 0 rgba(0,0,0,0.4), 8px 8px 0 #000; }
+    body.theme-pixel .controls button:active { transform: translate(4px, 4px); box-shadow: inset -2px -2px 0 rgba(0,0,0,0.4), 4px 4px 0 #000; }
+    body.theme-pixel .tap-hint { font-family: 'Press Start 2P'; font-size: 10px; color: #ffcc00; animation: blink 0.8s steps(2) infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    @keyframes pixelShake { 0% { transform: translate(0,0); } 25% { transform: translate(-10px, -5deg); } 50% { transform: translate(10px, 5deg); } 75% { transform: translate(-10px, -5deg); } 100% { transform: translate(0,0); } }
+    body.theme-pixel .is-shuffling .card { animation: pixelShake 0.5s steps(5) infinite; }
+    body.theme-pixel .back { font-size: 24px; text-shadow: 2px 2px 0 #000; }
+    
+    /* Pixel Red: Dot matrix */
+    body.theme-pixel .back.buzzed { 
+        background: #ff0055; border: 4px solid #ff99bb; 
+        background-image: radial-gradient(#ff3377 20%, transparent 20%); background-size: 10px 10px; 
+    }
+    
+    /* Pixel Yellow: Checkerboard (Update texture) */
+    body.theme-pixel .back.do { 
+        background-color: #ffcc00; color: #000; border: 4px solid #ffff99; text-shadow: none; 
+        background-image: 
+            linear-gradient(45deg, #e6b800 25%, transparent 25%, transparent 75%, #e6b800 75%, #e6b800), 
+            linear-gradient(45deg, #e6b800 25%, transparent 25%, transparent 75%, #e6b800 75%, #e6b800);
+        background-position: 0 0, 10px 10px;
+        background-size: 20px 20px;
+    }
+    
+    /* Pixel Blue: Dithering high contrast (Update texture) */
+    body.theme-pixel .back.truth { 
+        background-color: #00ccff; border: 4px solid #99e6ff;
+        background-image: 
+            linear-gradient(0deg, transparent 50%, #0099cc 50%),
+            linear-gradient(90deg, transparent 50%, #0099cc 50%);
+        background-size: 8px 8px;
+    }
+    
+    body.theme-pixel .card-type-label { top: 10px; font-family: 'Press Start 2P'; font-size: 10px; background: #000; color: #fff; border: 4px solid #fff; padding: 8px 12px; box-shadow: 4px 4px 0 #000; }
 
-.card {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  transform-style: preserve-3d;
-  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-  border-radius: 24px;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-}
 
-.card.flipped {
-  transform: rotateY(180deg);
-}
+    /* ================================================================
+       THEME 3: CARTOON (Fun)
+       ================================================================ */
+    body.theme-cartoon {
+        background-color: #FFEB3B; background-image: radial-gradient(circle, #FFC107 10%, transparent 10%); background-size: 30px 30px;
+        color: #212121; font-family: 'Comic Neue', cursive;
+    }
+    body.theme-cartoon header { background: #fff; border: 4px solid #212121; padding: 10px 20px; border-radius: 30px; box-shadow: 6px 6px 0 rgba(0,0,0,0.8); }
+    body.theme-cartoon h1 { font-family: 'Fredoka One'; font-size: 20px; color: #F44336; text-shadow: 2px 2px 0 #212121; }
+    body.theme-cartoon .counter { font-size: 14px; font-weight: bold; }
+    body.theme-cartoon .card { border: 5px solid #212121; border-radius: 30px; background: #fff; box-shadow: 10px 10px 0 rgba(0,0,0,0.8); }
+    body.theme-cartoon .face { border-radius: 30px; border: none; padding: 25px; }
+    body.theme-cartoon .front { background: #03A9F4; }
+    body.theme-cartoon .icon-cartoon { font-size: 70px; filter: drop-shadow(4px 4px 0 #212121); margin-bottom: 15px; }
+    body.theme-cartoon .controls button { font-family: 'Fredoka One'; background: #4CAF50; color: #fff; border: 4px solid #212121; padding: 15px 30px; border-radius: 50px; box-shadow: 6px 6px 0 #212121; font-size: 16px; }
+    body.theme-cartoon .controls button:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0 #212121; }
+    body.theme-cartoon .tap-hint { font-family: 'Fredoka One'; font-size: 18px; color: #fff; text-shadow: 3px 3px 0 #212121; animation: pulseHint 1.5s infinite; }
+    @keyframes cartoonBounce { 0%, 100% { transform: scale(1) rotate(0); } 50% { transform: scale(0.9) rotate(10deg); } }
+    body.theme-cartoon .is-shuffling .card { animation: cartoonBounce 0.6s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+    body.theme-cartoon .back { font-size: 22px; font-weight: 700; }
+    body.theme-cartoon .back.buzzed { background: #FF5252; color: #fff; border: 5px solid #212121; }
+    body.theme-cartoon .back.do { background: #FFD740; color: #212121; border: 5px solid #212121; }
+    body.theme-cartoon .back.truth { background: #448AFF; color: #fff; border: 5px solid #212121; }
+    body.theme-cartoon .card-type-label { top: -15px; font-family: 'Fredoka One'; font-size: 12px; background: #fff; color: #212121; border: 4px solid #212121; padding: 6px 15px; border-radius: 20px; box-shadow: 3px 3px 0 #212121; }
 
-/* --- UPDATE 1: ANIMATION SHUFFLE MỚI (Xoay 3D) --- */
-@keyframes superSpin {
-  0% { transform: rotateY(0) scale(1); filter: brightness(1); }
-  40% { scale: 0.9; filter: brightness(1.2); }
-  100% { transform: rotateY(1080deg) scale(1); filter: brightness(1); } /* Xoay 3 vòng */
-}
 
-.is-shuffling .card {
-  animation: superSpin 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
-}
+    /* ================================================================
+       THEME 4: MINIMALISM (REDUX - High End Style)
+       ================================================================ */
+    body.theme-minimal {
+        background-color: #EAEAEA; /* Màu xám hiện đại */
+        color: #111; font-family: 'Montserrat', sans-serif;
+    }
+    
+    body.theme-minimal header { background: transparent; border: none; box-shadow: none; padding: 20px; }
+    body.theme-minimal h1 { font-size: 12px; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: #555; }
+    body.theme-minimal .counter { font-size: 10px; color: #888; font-weight: 400; margin-top: 5px; }
+    body.theme-minimal .card { border-radius: 4px; background: #fff; box-shadow: 0 20px 60px rgba(0,0,0,0.08), 0 5px 15px rgba(0,0,0,0.05); border: none; }
+    body.theme-minimal .face { border-radius: 4px; border: none; padding: 40px; }
+    body.theme-minimal .front { background: #fff; display: flex; flex-direction: column; justify-content: space-between; }
+    body.theme-minimal .icon-minimal { font-size: 24px; font-weight: 300; color: #ccc; border: 1px solid #eee; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; }
+    body.theme-minimal .controls button { background: transparent; border: 1px solid #333; border-radius: 50px; padding: 12px 35px; color: #333; font-weight: 600; font-size: 12px; letter-spacing: 1px; transition: all 0.3s; }
+    body.theme-minimal .controls button:hover { background: #333; color: #fff; }
+    body.theme-minimal .tap-hint { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #999; margin-top: auto; font-weight: 500; }
+    body.theme-minimal .back { font-size: 20px; font-weight: 500; line-height: 1.6; color: #222; text-align: left; background: #fff; border-left: 8px solid #ddd; display: flex; flex-direction: column; justify-content: center; padding-left: 30px; }
+    body.theme-minimal .back.buzzed { border-left-color: #E57373; background: #fff; color: #222; }
+    body.theme-minimal .back.do { border-left-color: #FDD835; background: #fff; color: #222; }
+    body.theme-minimal .back.truth { border-left-color: #64B5F6; background: #fff; color: #222; }
+    body.theme-minimal .card-type-label { position: absolute; top: 20px; left: 30px; transform: none; font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #999; border: none; padding: 0; background: transparent; }
+    body.theme-minimal .back.buzzed .card-type-label { color: #E57373; } body.theme-minimal .back.do .card-type-label { color: #F9A825; } body.theme-minimal .back.truth .card-type-label { color: #1976D2; }
+    @keyframes softFade { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.97); } 100% { opacity: 1; transform: scale(1); } }
+    body.theme-minimal .is-shuffling .card { animation: softFade 0.7s ease-in-out infinite; }
 
-/* Các mặt của lá bài */
-.face {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 24px;
-  backface-visibility: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 30px;
-  text-align: center;
-  border: 1px solid rgba(255,255,255,0.1);
-}
 
-/* Mặt sau (Úp) */
-.front {
-  background: linear-gradient(135deg, #2b2b2b, #121212);
-  background-image: 
-    repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10px);
-}
+    /* ================================================================
+       THEME 5: JAPAN (Sakura / Calligraphy - ĐÃ UPDATE)
+       ================================================================ */
+    body.theme-japan {
+        --japan-bg: #fff0f5; 
+        --japan-red: #b71c1c;
+        --japan-black: #212121;
+        background-color: var(--japan-bg);
+        /* Màn đêm tĩnh lặng (Gradient nhẹ) */
+        background-image: linear-gradient(to bottom, #fff0f5, #fce4ec);
+        color: var(--japan-black);
+        font-family: 'Noto Serif', serif;
+    }
 
-.logo { font-size: 50px; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
+    body.theme-japan header {
+        background: rgba(255,255,255,0.9); border: 2px solid var(--japan-red); padding: 10px 25px; 
+        border-radius: 4px; box-shadow: 0 4px 10px rgba(183, 28, 28, 0.2); z-index: 10;
+    }
+    body.theme-japan h1 {
+        margin: 0; font-family: 'Dancing Script', cursive; font-size: 24px; 
+        color: var(--japan-red); letter-spacing: 1px; font-weight: 700;
+    }
+    body.theme-japan .counter { font-size: 13px; color: #555; margin-top: 2px; font-weight: 600; font-family: 'Noto Serif', serif;}
 
-/* --- UPDATE 2: TAP HINT (CHỮ GỢI Ý) ĐẸP HƠN --- */
-.tap-hint { 
-  font-size: 14px; 
-  letter-spacing: 3px; 
-  font-weight: 800; 
-  margin-top: 15px;
-  background: linear-gradient(to right, var(--neon-pink), var(--neon-blue)); 
-  -webkit-background-clip: text; 
-  -webkit-text-fill-color: transparent;
-  animation: pulseHint 2s infinite ease-in-out; 
-}
-@keyframes pulseHint { 0%, 100% { opacity: 0.5; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.05); } }
+    /* Hiệu ứng Sakura (Hoa rơi) */
+    .sakura {
+        position: absolute; top: -10px; background: #ffc0cb;
+        border-radius: 10px 1px; /* Tạo hình cánh hoa */
+        animation: fall linear forwards, sway ease-in-out infinite;
+        opacity: 0.8; pointer-events: none;
+    }
+    @keyframes fall { to { top: 105vh; } }
+    @keyframes sway { 
+        0%, 100% { transform: translateX(0) rotate(0deg); } 
+        50% { transform: translateX(20px) rotate(45deg); } 
+    }
 
-/* Mặt trước (Ngửa - Nội dung) */
-.back {
-  transform: rotateY(180deg);
-  font-size: 18px;
-  line-height: 1.5;
-  font-weight: 600;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  box-shadow: inset 0 0 30px rgba(0,0,0,0.3);
-}
+    /* Card Japan: Giấy Washi */
+    body.theme-japan .card {
+        border-radius: 4px; background: #fffdf7; /* Màu giấy cũ */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        border: none;
+        /* Texture giấy */
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.1'/%3E%3C/svg%3E");
+    }
+    body.theme-japan .face { 
+        border-radius: 4px; border: 1px solid #e0e0e0; padding: 25px; 
+        /* CĂN GIỮA TUYỆT ĐỐI CHO ICON */
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 20px; /* Khoảng cách giữa icon và chữ */
+    }
+    
+    body.theme-japan .front {
+        background-color: transparent;
+        /* Vòng tròn đỏ mặt trời mọc */
+        background-image: radial-gradient(circle at 50% 50%, #ef5350 25px, transparent 26%); /* Chỉnh tâm vòng tròn đỏ vào giữa */
+    }
+    body.theme-japan .icon-japan { 
+        font-size: 70px; margin: 0; /* Reset margin */
+        filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
+    }
 
-/* Các loại thẻ */
-.back.buzzed { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
-.back.do { background: linear-gradient(135deg, #f09819, #edde5d); color: #222; text-shadow: none; }
-.back.truth { background: linear-gradient(135deg, #00c6ff, #0072ff); }
+    @keyframes fanSpin { 0% { transform: rotateY(0); } 50% { transform: rotateY(90deg) skewY(10deg); } 100% { transform: rotateY(180deg); } }
+    body.theme-japan .is-shuffling .card { animation: fanSpin 0.8s ease-in-out infinite; }
 
-.card-type-label {
-  position: absolute;
-  top: 20px;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  opacity: 0.8;
-  border: 1px solid rgba(255,255,255,0.4);
-  padding: 4px 12px;
-  border-radius: 20px;
-}
-.back.do .card-type-label { border-color: rgba(0,0,0,0.2); }
+    body.theme-japan .controls button {
+        font-family: 'Noto Serif', serif; font-weight: 700; font-size: 14px;
+        background: var(--japan-red); color: #fff; border: none;
+        padding: 12px 30px; border-radius: 4px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2); letter-spacing: 1px;
+    }
+    body.theme-japan .controls button:active { transform: translateY(2px); }
 
-/* Controls */
-.controls {
-  position: absolute;
-  bottom: 40px;
-  display: flex;
-  gap: 15px;
-  z-index: 20;
-}
+    body.theme-japan .tap-hint {
+        font-family: 'Charm', cursive; font-weight: 700; font-size: 18px;
+        color: var(--japan-red); margin: 0; /* Reset margin */
+        border-top: 1px solid var(--japan-red); border-bottom: 1px solid var(--japan-red);
+        padding: 5px 15px; animation: pulseHint 2s infinite;
+    }
 
-/* --- UPDATE 3: BUTTON SHUFFLE ĐẸP HƠN --- */
-button {
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-  border: 1px solid var(--glass-border);
-  padding: 14px 28px;
-  border-radius: 40px;
-  cursor: pointer;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
-  font-size: 14px;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-}
+    /* === TYPOGRAPHY UPDATE: THƯ PHÁP CHO PHẦN BODY === */
+    body.theme-japan .back { 
+        font-size: 26px; /* Chữ to hơn cho dễ đọc font thư pháp */
+        font-weight: 700; 
+        line-height: 1.4; 
+        font-family: 'Charm', cursive; /* Font nét cọ */
+    }
+    
+    body.theme-japan .back.buzzed { background: transparent; color: #b71c1c; border: 2px solid #b71c1c; }
+    body.theme-japan .back.do { background: transparent; color: #f57f17; border: 2px solid #f57f17; }
+    body.theme-japan .back.truth { background: transparent; color: #0d47a1; border: 2px solid #0d47a1; }
 
-button:active { transform: scale(0.95); }
-button span { font-size: 18px; transition: transform 0.5s ease; }
+    body.theme-japan .card-type-label {
+        top: 15px; font-family: 'Noto Serif', serif; font-size: 10px; font-weight: 700; letter-spacing: 2px;
+        background: #fff; padding: 2px 8px; border-radius: 2px; border: 1px solid currentColor;
+    }
+    body.theme-japan .back.buzzed .card-type-label { color: #b71c1c; }
+    body.theme-japan .back.do .card-type-label { color: #f57f17; }
+    body.theme-japan .back.truth .card-type-label { color: #0d47a1; }
 
-.btn-shuffle:hover { 
-  background: var(--neon-pink); 
-  border-color: var(--neon-pink); 
-  box-shadow: 0 10px 30px rgba(255, 0, 85, 0.5); 
-  transform: translateY(-3px); 
-}
-.btn-shuffle:hover span { transform: rotate(180deg); }
+
+    /* Layout chung */
+    .scene { perspective: 1500px; position: relative; margin-bottom: 60px; z-index: 10; }
+    .card-wrapper { position: relative; width: 280px; height: 400px; cursor: pointer; }
+    .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+    .card.flipped { transform: rotateY(180deg); }
+    .face { position: absolute; top: 0; left: 0; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
+    .back { transform: rotateY(180deg); }
+    .card-type-label { position: absolute; left: 50%; transform: translateX(-50%); text-transform: uppercase; z-index: 5; }
+    .controls { position: absolute; bottom: 40px; display: flex; gap: 15px; z-index: 20; }
+    button { display: flex; align-items: center; gap: 10px; outline: none; }
+    
+    @keyframes pulseHint { 0%, 100% { opacity: 0.5; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.05); } }
 
 </style>
 </head>
 
 <body>
 
+<div id="sakura-container"></div>
+
+<button class="theme-switch" onclick="toggleTheme()">🎨 Đổi Theme</button>
+
 <header>
-  <h1>🍻 Drinking Game</h1>
-  <div class="counter" id="counter">Loading...</div>
+    <h1 id="gameTitle">DRINKING GAME</h1>
+    <div class="counter" id="counter">Loading...</div>
 </header>
 
 <div class="scene" id="scene">
@@ -226,8 +310,13 @@ button span { font-size: 18px; transition: transform 0.5s ease; }
     <div class="card" id="card">
       
       <div class="face front">
-        <div class="logo">🍺</div>
-        <div class="tap-hint">CHẠM ĐỂ RÚT</div>
+        <div class="theme-icon icon-main">🍺</div>
+        <div class="theme-icon icon-pixel"></div>
+        <div class="theme-icon icon-cartoon">🤪</div>
+        <div class="theme-icon icon-minimal">M</div>
+        <div class="theme-icon icon-japan">🌸</div>
+        
+        <div class="tap-hint" id="tapHintText">CHẠM ĐỂ RÚT</div>
       </div>
 
       <div class="face back" id="cardBack">
@@ -241,12 +330,12 @@ button span { font-size: 18px; transition: transform 0.5s ease; }
 
 <div class="controls">
   <button class="btn-shuffle" onclick="shuffleGame(event)">
-    <span>🔄</span> TRÁO BÀI LẠI
+    <span id="btnIcon">🔄</span> <span id="btnText">TRÁO BÀI LẠI</span>
   </button>
 </div>
 
 <script>
-/* ================= 1. DỮ LIỆU BỘ BÀI ================= */
+/* ================= 1. DỮ LIỆU BỘ BÀI (Demo) ================= */
 const fullDeck = [
   /* BUZZED */
   {type:"buzzed",text:"Uống nếu bạn từng thích một người bạn thân"},
@@ -536,93 +625,199 @@ const fullDeck = [
   { type:"truth", text:"Mindset như thế nào của người khác khiến bạn cảm thấy rất đỉnh nhưng bạn không thể làm được?" }
 ];
 
-/* ================= 2. XỬ LÝ GAME ================= */
-
-// Khởi tạo biến
+// Logic game
 let cards = [...fullDeck];
 let flipped = false;
-let isAnimating = false; // Biến chặn click khi đang shuffle
+let isAnimating = false;
+let sakuraInterval; // Biến lưu timer tạo hoa
 
-// Lấy các element từ HTML
 const scene = document.getElementById("scene");
 const card = document.getElementById("card");
 const cardText = document.getElementById("cardText");
 const cardBack = document.getElementById("cardBack");
 const cardType = document.getElementById("cardType");
 const counter = document.getElementById("counter");
+const sakuraContainer = document.getElementById("sakura-container");
 
-// Hàm rút bài
+/* === XỬ LÝ 5 THEME === */
+const themes = ['theme-main', 'theme-pixel', 'theme-cartoon', 'theme-minimal', 'theme-japan'];
+
+function initTheme() {
+    const savedTheme = localStorage.getItem('drinkingGameTheme');
+    const themeToApply = (savedTheme && themes.includes(savedTheme)) ? savedTheme : 'theme-main';
+    document.body.className = themeToApply;
+    updateUIText(themeToApply);
+    
+    // Kích hoạt hiệu ứng hoa anh đào nếu là theme Japan
+    if (themeToApply === 'theme-japan') startSakura();
+    else stopSakura();
+}
+
+function toggleTheme() {
+    let currentThemeIndex = themes.indexOf(document.body.className);
+    if (currentThemeIndex === -1) currentThemeIndex = 0;
+    
+    let nextIndex = (currentThemeIndex + 1) % themes.length;
+    let nextTheme = themes[nextIndex];
+
+    document.body.className = nextTheme;
+    localStorage.setItem('drinkingGameTheme', nextTheme);
+    
+    if (flipped) {
+        card.classList.remove("flipped");
+        flipped = false;
+    }
+    
+    updateUIText(nextTheme);
+    
+    // Bật/Tắt hoa anh đào
+    if (nextTheme === 'theme-japan') startSakura();
+    else stopSakura();
+}
+
+function updateUIText(theme) {
+    const title = document.getElementById('gameTitle');
+    const btnText = document.getElementById('btnText');
+    const btnIcon = document.getElementById('btnIcon');
+    const tapHint = document.getElementById('tapHintText');
+    
+    switch(theme) {
+        case 'theme-pixel':
+            title.innerText = "👾 PIXEL DRINKING 👾";
+            btnText.innerText = "SHUFFLE";
+            btnIcon.innerText = "🔄";
+            tapHint.innerHTML = "INSERT COIN<br>(TAP TO PLAY)";
+            break;
+        case 'theme-cartoon':
+            title.innerText = "🤪 VUI VẺ ĐÊÊÊ!";
+            btnText.innerText = "XÀO BÀI LẠI!";
+            btnIcon.innerText = "🎲";
+            tapHint.innerText = "BẤM ĐỂ BỐC BÀI";
+            break;
+        case 'theme-minimal':
+             title.innerText = "THE DRINKING GAME";
+            btnText.innerText = "SHUFFLE DECK";
+            btnIcon.innerText = "";
+            tapHint.innerText = "TAP TO DRAW";
+            break;
+        case 'theme-japan':
+            title.innerText = "🌸 DRINKING GAME 🌸";
+            btnText.innerText = "TRÁO THẺ";
+            btnIcon.innerText = "🎴";
+            tapHint.innerText = "RÚT QUẺ";
+            break;
+        case 'theme-main':
+        default:
+            title.innerText = "🍻 DRINKING GAME";
+            btnText.innerText = "TRÁO BÀI LẠI";
+            btnIcon.innerText = "🔄";
+            tapHint.innerText = "CHẠM ĐỂ RÚT";
+            break;
+    }
+}
+
+/* === LOGIC HOA ANH ĐÀO (SAKURA) === */
+function createSakuraPetal() {
+    const petal = document.createElement('div');
+    petal.classList.add('sakura');
+    
+    // Ngẫu nhiên vị trí và kích thước
+    const size = Math.random() * 10 + 5 + 'px';
+    petal.style.width = size;
+    petal.style.height = size;
+    petal.style.left = Math.random() * 100 + 'vw';
+    
+    // Ngẫu nhiên thời gian rơi
+    const duration = Math.random() * 3 + 4 + 's';
+    petal.style.animationDuration = duration;
+    
+    sakuraContainer.appendChild(petal);
+    
+    // Xóa cánh hoa khi rơi xong
+    setTimeout(() => {
+        petal.remove();
+    }, parseFloat(duration) * 1000);
+}
+
+function startSakura() {
+    sakuraContainer.style.display = 'block';
+    // Tạo cánh hoa mỗi 300ms
+    sakuraInterval = setInterval(createSakuraPetal, 300);
+}
+
+function stopSakura() {
+    sakuraContainer.style.display = 'none';
+    clearInterval(sakuraInterval);
+    sakuraContainer.innerHTML = ''; // Xóa hết hoa đang rơi
+}
+
+
 function drawCard() {
-  if (isAnimating) return; // Đang shuffle thì không cho rút
-
+  if (isAnimating) return;
   if (cards.length === 0) {
-    alert("Hết bài rồi! Bấm Tráo bài lại để chơi tiếp.");
+    alert("Hết bài rồi! Bấm Tráo bài để chơi tiếp.");
     return;
   }
 
   if (!flipped) {
-    // Rút ngẫu nhiên
     const index = Math.floor(Math.random() * cards.length);
     const picked = cards.splice(index, 1)[0];
 
-    // Cập nhật nội dung
     cardText.innerText = picked.text;
     if(cardType) cardType.innerText = picked.type.toUpperCase();
     
-    // Đổi màu nền
-    cardBack.className = "face back " + picked.type;
+    cardBack.className = "face back";
+    void cardBack.offsetWidth; 
+    cardBack.classList.add(picked.type);
 
-    // Lật bài
     card.classList.add("flipped");
     flipped = true;
 
     if (navigator.vibrate) navigator.vibrate(50);
     updateCounter();
-
   } else {
-    // Úp bài
     card.classList.remove("flipped");
     flipped = false;
   }
 }
 
-// Hàm Shuffle (Tráo bài) với hiệu ứng mới
 function shuffleGame(e) {
   if(e) e.stopPropagation();
   if(isAnimating) return;
 
   isAnimating = true;
-  scene.classList.add("is-shuffling"); // Kích hoạt animation xoay 3D
+  scene.classList.add("is-shuffling");
 
-  // Nếu bài đang lật thì úp lại ngay lập tức
   if (flipped) {
     card.classList.remove("flipped");
     flipped = false;
   }
 
-  // Reset bài
   cards = [...fullDeck];
   updateCounter();
 
-  // Rung phản hồi dài hơn
   if (navigator.vibrate) navigator.vibrate([30, 50, 30, 50, 30]);
 
-  // Xóa class animation sau khi xoay xong (0.8s)
   setTimeout(() => {
     scene.classList.remove("is-shuffling");
     isAnimating = false;
   }, 800);
 }
 
-// Hàm hiển thị số lượng
 function updateCounter() {
   if (counter) {
-    counter.innerText = `CÒN ${cards.length} / ${fullDeck.length} LÁ`;
+    if (document.body.classList.contains('theme-minimal')) {
+         counter.innerText = `${cards.length} / ${fullDeck.length}`;
+    } else if (document.body.classList.contains('theme-japan')) {
+         counter.innerText = `CÒN ${cards.length} / ${fullDeck.length} THẺ`;
+    } else {
+         counter.innerText = `CÒN ${cards.length} / ${fullDeck.length} LÁ`;
+    }
   }
 }
 
-// CHẠY NGAY KHI TRANG WEB SẴN SÀNG
 document.addEventListener("DOMContentLoaded", function() {
+  initTheme();
   updateCounter();
 });
 </script>
